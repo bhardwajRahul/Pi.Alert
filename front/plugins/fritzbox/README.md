@@ -83,7 +83,7 @@ The plugin reports the following information for each device:
 | **MAC Address** | Device hardware address (normalized format) | `devMac` |
 | **IP Address** | Current IPv4 address | `devLastIP` |
 | **Hostname** | Device name from Fritz!Box | `devName` |
-| **Connection Status** | "Active" or "Inactive" | `devVendor` (shown as vendor field) |
+| **Connection Status** | "Active" or "Inactive" | Plugin table only (not mapped to device fields) |
 | **Interface Type** | WiFi / LAN / Guest Network | `devType` |
 
 ### Guest WiFi Feature
