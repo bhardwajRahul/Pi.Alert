@@ -13,6 +13,8 @@ from const import logPath  # noqa: E402, E261 [flake8 lint suppression]
 from plugin_helper import Plugin_Objects, normalize_mac  # noqa: E402, E261 [flake8 lint suppression]
 from logger import mylog, Logger  # noqa: E402, E261 [flake8 lint suppression]
 from helper import get_setting_value  # noqa: E402, E261 [flake8 lint suppression]
+from fritzconnection import FritzConnection  # noqa: E402, E261 [flake8 lint suppression]
+from fritzconnection.lib.fritzhosts import FritzHosts  # noqa: E402, E261 [flake8 lint suppression]
 
 import conf  # noqa: E402, E261 [flake8 lint suppression]
 
@@ -44,8 +46,6 @@ def get_fritzbox_connection(host, port, user, password, use_tls):
     Returns: FritzConnection object or None on failure
     """
     try:
-        from fritzconnection import FritzConnection
-
         mylog('verbose', [f'[{pluginName}] Attempting connection to {host}:{port} (TLS: {use_tls})'])
 
         fc = FritzConnection(
@@ -61,10 +61,6 @@ def get_fritzbox_connection(host, port, user, password, use_tls):
         mylog('verbose', [f'[{pluginName}] Model: {fc.modelname}, Software: {fc.system_version}'])
 
         return fc
-    except ImportError as e:
-        mylog('none', [f'[{pluginName}] ⚠ ERROR: fritzconnection library not installed: {e}'])
-        mylog('none', [f'[{pluginName}] Please install with: pip install fritzconnection'])
-        return None
     except Exception as e:
         mylog('none', [f'[{pluginName}] ⚠ ERROR: Failed to connect to Fritz!Box: {e}'])
         mylog('none', [f'[{pluginName}] Check host ({host}), port ({port}), and credentials'])
@@ -82,8 +78,6 @@ def get_connected_devices(fc, active_only):
     devices = []
 
     try:
-        from fritzconnection.lib.fritzhosts import FritzHosts
-
         hosts = FritzHosts(fc)
         host_count = hosts.host_numbers
 
@@ -136,8 +130,6 @@ def get_connected_devices(fc, active_only):
 
         mylog('verbose', [f'[{pluginName}] Processed {len(devices)} devices'])
 
-    except ImportError as e:
-        mylog('none', [f'[{pluginName}] ⚠ ERROR: fritzconnection library not properly installed: {e}'])
     except Exception as e:
         mylog('none', [f'[{pluginName}] ⚠ ERROR: Failed to query devices: {e}'])
 
