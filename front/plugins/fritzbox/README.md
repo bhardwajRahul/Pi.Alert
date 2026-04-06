@@ -201,12 +201,11 @@ This allows you to:
 ### Version
 
 - **Version**: 1.0.0
-- **Author**: NetAlertX Community
-- **Release Date**: January 2026
-- **License**: GPL-3.0
+- **Author**: [@sebingel](https://github.com/sebingel)
+- **Release Date**: April 2026
 
 ### Support
 
 For issues, questions, or feature requests:
-- NetAlertX GitHub: [https://github.com/jokob-sk/NetAlertX](https://github.com/jokob-sk/NetAlertX)
+- NetAlertX GitHub: [https://github.com/netalertx/NetAlertX](https://github.com/netalertx/NetAlertX)
 - Fritz!Box TR-064 Documentation: [https://avm.de/service/schnittstellen/](https://avm.de/service/schnittstellen/)
