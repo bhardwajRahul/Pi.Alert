@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import hashlib
 import os
 import sys
 from pytz import timezone
@@ -13,6 +12,7 @@ from const import logPath  # noqa: E402, E261 [flake8 lint suppression]
 from plugin_helper import Plugin_Objects, normalize_mac  # noqa: E402, E261 [flake8 lint suppression]
 from logger import mylog, Logger  # noqa: E402, E261 [flake8 lint suppression]
 from helper import get_setting_value  # noqa: E402, E261 [flake8 lint suppression]
+from utils.crypto_utils import string_to_fake_mac  # noqa: E402, E261 [flake8 lint suppression]
 from fritzconnection import FritzConnection  # noqa: E402, E261 [flake8 lint suppression]
 from fritzconnection.lib.fritzhosts import FritzHosts  # noqa: E402, E261 [flake8 lint suppression]
 
@@ -166,26 +166,16 @@ def check_guest_wifi_status(fc, guest_service_num):
     return guest_info
 
 
-def create_guest_wifi_device(fc):
+def create_guest_wifi_device(fc, host):
     """
     Create a synthetic device entry for guest WiFi.
-    Derives a locally-administered MAC (02:xx:xx:xx:xx:xx) from the Fritz!Box MAC.
+    Derives a deterministic fake MAC from the Fritz!Box hardware MAC address.
+    Falls back to the configured host string if the MAC cannot be retrieved.
     Returns: Device dictionary
     """
     try:
-        # Get Fritz!Box MAC address
         fritzbox_mac = fc.call_action('DeviceInfo:1', 'GetInfo').get('NewMACAddress', '')
-
-        if fritzbox_mac:
-            # Derive a deterministic locally-administered MAC (02:xx:xx:xx:xx:xx).
-            # The 02 prefix sets the locally-administered bit, ensuring no collision
-            # with real OUI-assigned MACs. The remaining 5 bytes come from an MD5
-            # hash of the Fritz!Box MAC so the guest MAC is stable across runs.
-            digest = hashlib.md5(f'GUEST:{normalize_mac(fritzbox_mac)}'.encode(), usedforsecurity=False).digest()
-            guest_mac = '02:' + ':'.join(f'{b:02x}' for b in digest[:5])
-        else:
-            # Fallback if we can't get Fritz!Box MAC
-            guest_mac = '02:00:00:00:00:01'
+        guest_mac = string_to_fake_mac(normalize_mac(fritzbox_mac) if fritzbox_mac else host)
 
         device = {
             'mac_address': guest_mac,
@@ -234,7 +224,7 @@ def main():
     if report_guest:
         guest_status = check_guest_wifi_status(fc, guest_service)
         if guest_status['active']:
-            guest_device = create_guest_wifi_device(fc)
+            guest_device = create_guest_wifi_device(fc, host)
             if guest_device:
                 device_data.append(guest_device)
 
