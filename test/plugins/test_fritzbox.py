@@ -304,7 +304,7 @@ class TestGetFritzboxConnection:
 
         assert result is fc_instance
         fc_class.assert_called_once_with(
-            address="fritz.box", port=49443, user="admin", password="pass", use_tls=True,
+            address="fritz.box", port=49443, user="admin", password="pass", use_tls=True, timeout=10,
         )
 
     def test_import_error_returns_none(self):

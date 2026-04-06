@@ -54,6 +54,7 @@ def get_fritzbox_connection(host, port, user, password, use_tls):
             user=user,
             password=password,
             use_tls=use_tls,
+            timeout=10,
         )
 
         mylog('verbose', [f'[{pluginName}] Successfully connected to Fritz!Box'])
@@ -188,7 +189,7 @@ def create_guest_wifi_device(fc):
             # The 02 prefix sets the locally-administered bit, ensuring no collision
             # with real OUI-assigned MACs. The remaining 5 bytes come from an MD5
             # hash of the Fritz!Box MAC so the guest MAC is stable across runs.
-            digest = hashlib.md5(f'GUEST:{normalize_mac(fritzbox_mac)}'.encode()).digest()
+            digest = hashlib.md5(f'GUEST:{normalize_mac(fritzbox_mac)}'.encode(), usedforsecurity=False).digest()
             guest_mac = '02:' + ':'.join(f'{b:02x}' for b in digest[:5])
         else:
             # Fallback if we can't get Fritz!Box MAC
