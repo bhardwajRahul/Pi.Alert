@@ -25,3 +25,4 @@ yattag
 zeroconf
 psutil
 freebox-api
+fritzconnection>=1.15.1
