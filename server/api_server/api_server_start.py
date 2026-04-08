@@ -586,7 +586,7 @@ def api_device_set_alias(mac, payload=None):
     device_handler = DeviceInstance()
     result = device_handler.updateDeviceColumn(mac, 'devName', alias)
 
-    if not result.get("success") and result.get("error") == "Device not found":
+    if not result.get("success"):
         return jsonify(result), 404
 
     return jsonify(result)
