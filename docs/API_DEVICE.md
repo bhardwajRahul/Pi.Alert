@@ -50,6 +50,10 @@ Manage a **single device** by its MAC address. Operations include retrieval, upd
 * **POST** `/device/<mac>`
   Create or update a device record.
 
+> ⚠️ **Full-replace (PUT) semantics.** Every editable field is written on each call. Any field omitted from the payload is reset to its default (empty string or `0`). This matches how the frontend edit form works — it always sends the complete device state.
+>
+> To update a **single field** without affecting others, use [`POST /device/<mac>/update-column`](#7-update-a-single-column) instead.
+
 **Request Body**:
 
 ```json
@@ -62,8 +66,8 @@ Manage a **single device** by its MAC address. Operations include retrieval, upd
 
 **Behavior**:
 
-* If `createNew=true` → creates a new device
-* Otherwise → updates existing device fields
+* If `createNew=true` → inserts a new device row
+* Otherwise → **replaces all editable fields** on the existing device
 
 **Response**:
 
@@ -163,7 +167,11 @@ Manage a **single device** by its MAC address. Operations include retrieval, upd
 ## 7. Update a Single Column
 
 * **POST** `/device/<mac>/update-column`
-  Update one specific column for a device.
+  Update exactly one field for a device without touching any other fields.
+
+> ✅ **Partial-update (PATCH) semantics.** Only the specified column is written. All other fields are left unchanged. Use this for automation, integrations, and any workflow that needs to update a single attribute.
+>
+> To replace all fields at once (e.g. saving from the edit form), use [`POST /device/<mac>`](#2-update-device-fields).
 
 Allowed `columnName` values: `devName`, `devOwner`, `devType`, `devVendor`, `devGroup`, `devLocation`, `devComments`, `devIcon`, `devFavorite`, `devAlertEvents`, `devAlertDown`, `devCanSleep`, `devSkipRepeated`, `devReqNicsOnline`, `devForceStatus`, `devParentMAC`, `devParentPort`, `devParentRelType`, `devSSID`, `devSite`, `devVlan`, `devStaticIP`, `devIsNew`, `devIsArchived`, `devCustomProps`.
 
