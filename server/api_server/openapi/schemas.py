@@ -33,9 +33,19 @@ COLUMN_NAME_PATTERN = re.compile(r"^[a-zA-Z0-9_]+$")
 
 # Security whitelists & Literals for documentation
 ALLOWED_DEVICE_COLUMNS = Literal[
+    # Main Info
     "devName", "devOwner", "devType", "devVendor",
-    "devGroup", "devLocation", "devComments", "devFavorite",
-    "devParentMAC", "devCanSleep"
+    "devGroup", "devLocation", "devComments", "devIcon",
+    # Alerts & Behavior
+    "devFavorite", "devAlertEvents", "devAlertDown",
+    "devCanSleep", "devSkipRepeated", "devReqNicsOnline", "devForceStatus",
+    # Network topology
+    "devParentMAC", "devParentPort", "devParentRelType",
+    "devSSID", "devSite", "devVlan",
+    # Display / Status
+    "devStaticIP", "devIsNew", "devIsArchived",
+    # Custom properties
+    "devCustomProps",
 ]
 
 ALLOWED_NMAP_MODES = Literal[
