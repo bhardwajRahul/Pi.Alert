@@ -217,7 +217,7 @@ Allowed `columnName` values: `devName`, `devOwner`, `devType`, `devVendor`, `dev
 | Field | Type | Required | Description |
 |---|---|---|---|
 | `fieldName` | string | ✅ | Field to lock/unlock (e.g. `devName`, `devVendor`) |
-| `lock` | boolean | ❌ | `true` to lock (default), `false` to unlock |
+| `lock` | boolean | ❌ | `true` to lock, `false` to unlock (default when omitted) |
 
 **Response** (success):
 

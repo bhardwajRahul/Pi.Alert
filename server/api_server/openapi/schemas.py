@@ -417,7 +417,7 @@ class UpdateDeviceColumnRequest(BaseModel):
 class LockDeviceFieldRequest(BaseModel):
     """Request to lock/unlock a device field."""
     fieldName: str = Field(..., description="Field name to lock/unlock (e.g., devName, devVendor). Required.")
-    lock: bool = Field(True, description="True to lock the field, False to unlock")
+    lock: bool = Field(False, description="True to lock the field, False (default) to unlock")
 
 
 class UnlockDeviceFieldsRequest(BaseModel):
@@ -430,7 +430,7 @@ class UnlockDeviceFieldsRequest(BaseModel):
         None,
         description="List of field names to unlock. If omitted, all tracked fields will be unlocked"
     )
-    clear_all: bool = Field(
+    clearAll: bool = Field(
         False,
         description="True to clear all sources, False to clear only LOCKED/USER"
     )
