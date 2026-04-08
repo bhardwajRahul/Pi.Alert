@@ -17,6 +17,22 @@ Before opening a new issue:
 
 ---
 
+## Contributing without coding knowledge
+
+Writing code is not the only way how you can contribute to the project. Here are some ideas how you can help out otherwise:
+
+ - Help improving the documentation (text, typos, use cases, screenshots - all this makes things better)
+ - Share your favorite project on socials (see [Growth ideas](./GROWTH.md))
+ - Write a blog post, or a how-to set-up guide
+ - Write how it helped you to achieve something fun or interesting to simplify your personal or work life
+ - Help with the translation effort
+ - Running a nightly or dev build to test for bugs before they make it to the production release
+ - Report bugs and features with sufficient detail and care (super important to ease everyone's maintenance burden and minimize back-and-forth)
+ - running a projects test suite
+
+
+---
+
 ## Use of AI
 
 Use of AI-assisted tools is permitted, provided all generated code is reviewed, understood, and verified before submission.
