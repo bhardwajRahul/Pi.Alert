@@ -11,11 +11,12 @@ You need to specify the network interface and the network mask. You can also con
 >  If this command returns no results:
 >
 > - ✅ If you see output like `IPv4: (none)` or `Using 0.0.0.0`:
->   → The interface was not detected correctly.
->   → Fix: explicitly set the interface using `--interface=<name>`.
+>   - The interface was not detected correctly.
+>   - Fix: explicitly set the interface using `--interface=<name>`.
 >
 > - ❌ If the scan runs correctly but still finds no devices:
->   → The network may not be accessible due to firewall, VLAN, or network restrictions (Wi-Fi extenders, VPNs, etc.). If direct scans are not possible, check the [remote networks documentation](./REMOTE_NETWORKS.md) for workarounds.
+>   - The network may not be accessible due to firewall, VLAN, or network restrictions (Wi-Fi extenders, VPNs, etc.).
+>   - If direct scans are not possible, check the [remote networks documentation](./REMOTE_NETWORKS.md) for workarounds.
 
 ## Example Values
 
