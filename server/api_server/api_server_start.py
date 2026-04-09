@@ -585,6 +585,11 @@ def api_device_set_alias(mac, payload=None):
 
     device_handler = DeviceInstance()
     result = device_handler.updateDeviceColumn(mac, 'devName', alias)
+
+    if not result.get("success"):
+        err = result.get("error") or result.get("message") or f"Failed to update alias for device {mac}"
+        return jsonify({"success": False, "error": err})
+
     return jsonify(result)
 
 

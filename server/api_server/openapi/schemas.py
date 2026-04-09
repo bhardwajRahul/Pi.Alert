@@ -33,9 +33,19 @@ COLUMN_NAME_PATTERN = re.compile(r"^[a-zA-Z0-9_]+$")
 
 # Security whitelists & Literals for documentation
 ALLOWED_DEVICE_COLUMNS = Literal[
+    # Main Info
     "devName", "devOwner", "devType", "devVendor",
-    "devGroup", "devLocation", "devComments", "devFavorite",
-    "devParentMAC", "devCanSleep"
+    "devGroup", "devLocation", "devComments", "devIcon",
+    # Alerts & Behavior
+    "devFavorite", "devAlertEvents", "devAlertDown",
+    "devCanSleep", "devSkipRepeated", "devReqNicsOnline", "devForceStatus",
+    # Network topology
+    "devParentMAC", "devParentPort", "devParentRelType",
+    "devSSID", "devSite", "devVlan",
+    # Display / Status
+    "devStaticIP", "devIsNew", "devIsArchived",
+    # Custom properties
+    "devCustomProps",
 ]
 
 ALLOWED_NMAP_MODES = Literal[
@@ -407,7 +417,7 @@ class UpdateDeviceColumnRequest(BaseModel):
 class LockDeviceFieldRequest(BaseModel):
     """Request to lock/unlock a device field."""
     fieldName: str = Field(..., description="Field name to lock/unlock (e.g., devName, devVendor). Required.")
-    lock: bool = Field(True, description="True to lock the field, False to unlock")
+    lock: bool = Field(False, description="True to lock the field, False (default) to unlock")
 
 
 class UnlockDeviceFieldsRequest(BaseModel):
@@ -420,7 +430,7 @@ class UnlockDeviceFieldsRequest(BaseModel):
         None,
         description="List of field names to unlock. If omitted, all tracked fields will be unlocked"
     )
-    clear_all: bool = Field(
+    clearAll: bool = Field(
         False,
         description="True to clear all sources, False to clear only LOCKED/USER"
     )
