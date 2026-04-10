@@ -171,6 +171,7 @@ def insert_device(
     can_sleep: int = 0,
     last_connection: str | None = None,
     last_ip: str = "192.168.1.1",
+    force_status: str | None = None,
 ) -> None:
     """
     Insert a minimal Devices row.
@@ -189,16 +190,19 @@ def insert_device(
         ISO-8601 UTC string; defaults to 60 minutes ago when omitted.
     last_ip:
         Value stored in devLastIP.
+    force_status:
+        Value for devForceStatus (``'online'``, ``'offline'``, or ``None``/
+        ``'dont_force'``).
     """
     cur.execute(
         """
         INSERT INTO Devices
             (devMac, devAlertDown, devPresentLastScan, devCanSleep,
-             devLastConnection, devLastIP, devIsArchived, devIsNew)
-        VALUES (?, ?, ?, ?, ?, ?, 0, 0)
+             devLastConnection, devLastIP, devIsArchived, devIsNew, devForceStatus)
+        VALUES (?, ?, ?, ?, ?, ?, 0, 0, ?)
         """,
         (mac, alert_down, present_last_scan, can_sleep,
-         last_connection or minutes_ago(60), last_ip),
+         last_connection or minutes_ago(60), last_ip, force_status),
     )
 
 

@@ -179,6 +179,7 @@ def insert_events(db):
                     WHERE devAlertDown != 0
                       AND devCanSleep = 0
                       AND devPresentLastScan = 1
+                      AND LOWER(COALESCE(devForceStatus, '')) != 'online'
                       AND NOT EXISTS (SELECT 1 FROM CurrentScan
                                       WHERE devMac = scanMac
                                          ) """)
@@ -194,6 +195,7 @@ def insert_events(db):
                       AND devCanSleep = 1
                       AND devIsSleeping = 0
                       AND devPresentLastScan = 0
+                      AND LOWER(COALESCE(devForceStatus, '')) != 'online'
                       AND NOT EXISTS (SELECT 1 FROM CurrentScan
                                       WHERE devMac = scanMac)
                       AND NOT EXISTS (SELECT 1 FROM Events
@@ -229,6 +231,7 @@ def insert_events(db):
                     FROM Devices
                     WHERE devAlertDown = 0
                       AND devPresentLastScan = 1
+                      AND LOWER(COALESCE(devForceStatus, '')) != 'online'
                       AND NOT EXISTS (SELECT 1 FROM CurrentScan
                                       WHERE devMac = scanMac
                                          ) """)
