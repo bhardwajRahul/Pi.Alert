@@ -20,6 +20,10 @@ from messaging.reporting import skip_repeated_notifications
 from messaging.in_app import update_unread_notifications_count
 from const import NULL_EQUIVALENTS_SQL
 
+# Predicate used in every negative-event INSERT to skip forced-online devices.
+# Centralised here so all three event paths stay in sync.
+_SQL_NOT_FORCED_ONLINE = "LOWER(COALESCE(devForceStatus, '')) != 'online'"
+
 
 # Make sure log level is initialized correctly
 Logger(get_setting_value("LOG_LEVEL"))
@@ -179,6 +183,7 @@ def insert_events(db):
                     WHERE devAlertDown != 0
                       AND devCanSleep = 0
                       AND devPresentLastScan = 1
+                      AND {_SQL_NOT_FORCED_ONLINE}
                       AND NOT EXISTS (SELECT 1 FROM CurrentScan
                                       WHERE devMac = scanMac
                                          ) """)
@@ -194,6 +199,7 @@ def insert_events(db):
                       AND devCanSleep = 1
                       AND devIsSleeping = 0
                       AND devPresentLastScan = 0
+                      AND {_SQL_NOT_FORCED_ONLINE}
                       AND NOT EXISTS (SELECT 1 FROM CurrentScan
                                       WHERE devMac = scanMac)
                       AND NOT EXISTS (SELECT 1 FROM Events
@@ -229,6 +235,7 @@ def insert_events(db):
                     FROM Devices
                     WHERE devAlertDown = 0
                       AND devPresentLastScan = 1
+                      AND {_SQL_NOT_FORCED_ONLINE}
                       AND NOT EXISTS (SELECT 1 FROM CurrentScan
                                       WHERE devMac = scanMac
                                          ) """)

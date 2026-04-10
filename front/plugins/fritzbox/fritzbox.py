@@ -166,16 +166,16 @@ def check_guest_wifi_status(fc, guest_service_num):
     return guest_info
 
 
-def create_guest_wifi_device(fc, host):
+def create_guest_wifi_device(fc):
     """
     Create a synthetic device entry for guest WiFi.
     Derives a deterministic fake MAC from the Fritz!Box hardware MAC address.
-    Falls back to the configured host string if the MAC cannot be retrieved.
+    Falls back to a fixed sentinel string if the MAC cannot be retrieved.
     Returns: Device dictionary
     """
     try:
         fritzbox_mac = fc.call_action('DeviceInfo:1', 'GetInfo').get('NewMACAddress', '')
-        guest_mac = string_to_fake_mac(normalize_mac(fritzbox_mac) if fritzbox_mac else host)
+        guest_mac = string_to_fake_mac(normalize_mac(fritzbox_mac) if fritzbox_mac else 'FRITZBOX_GUEST')
 
         device = {
             'mac_address': guest_mac,
@@ -224,7 +224,7 @@ def main():
     if report_guest:
         guest_status = check_guest_wifi_status(fc, guest_service)
         if guest_status['active']:
-            guest_device = create_guest_wifi_device(fc, host)
+            guest_device = create_guest_wifi_device(fc)
             if guest_device:
                 device_data.append(guest_device)
 

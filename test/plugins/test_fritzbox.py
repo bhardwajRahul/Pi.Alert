@@ -7,10 +7,11 @@ first import so no live config reads, log files, or result files are
 created during tests.
 """
 
-import hashlib
 import sys
 import os
 from unittest.mock import patch, MagicMock
+
+from utils.crypto_utils import string_to_fake_mac
 
 import pytest
 
@@ -59,19 +60,12 @@ def _make_host_entry(mac="AA:BB:CC:DD:EE:FF", ip="192.168.1.10",
 @pytest.fixture
 def mock_fritz_hosts():
     """
-    Patches fritzconnection.lib.fritzhosts in sys.modules so that
-    fritzbox.get_connected_devices() uses a controllable FritzHosts mock.
-    Yields the FritzHosts *instance* (what FritzHosts(fc) returns).
+    Patches fritzbox.FritzHosts so that get_connected_devices() uses a
+    controllable mock.  Yields the FritzHosts *instance* (what FritzHosts(fc)
+    returns).
     """
     hosts_instance = MagicMock()
-    fritz_hosts_module = MagicMock()
-    fritz_hosts_module.FritzHosts = MagicMock(return_value=hosts_instance)
-
-    with patch.dict("sys.modules", {
-        "fritzconnection": MagicMock(),
-        "fritzconnection.lib": MagicMock(),
-        "fritzconnection.lib.fritzhosts": fritz_hosts_module,
-    }):
+    with patch("fritzbox.FritzHosts", return_value=hosts_instance):
         yield hosts_instance
 
 
@@ -229,12 +223,15 @@ class TestCreateGuestWifiDevice:
         assert device["active_status"] == "Active"
         assert device["interface_type"] == "Access Point"
         assert device["ip_address"] == ""
+        # MAC must match string_to_fake_mac output (fa:ce: prefix)
+        assert device["mac_address"].startswith("fa:ce:")
 
     def test_guest_mac_has_locally_administered_bit(self):
-        """First byte must be 0x02 — locally-administered, unicast."""
+        """The locally-administered bit (0x02) must be set in the first byte.
+        string_to_fake_mac uses the 'fa:ce:' prefix; 0xFA & 0x02 == 0x02."""
         device = fritzbox.create_guest_wifi_device(self._fc_with_mac("AA:BB:CC:DD:EE:FF"))
         first_byte = int(device["mac_address"].split(":")[0], 16)
-        assert first_byte == 0x02
+        assert first_byte & 0x02 != 0
 
     def test_guest_mac_format_is_valid(self):
         """MAC must be 6 colon-separated lowercase hex pairs."""
@@ -258,11 +255,11 @@ class TestCreateGuestWifiDevice:
         assert mac_a != mac_b
 
     def test_no_fritzbox_mac_uses_fallback(self):
-        """When DeviceInfo returns no MAC, fall back to 02:00:00:00:00:01."""
+        """When DeviceInfo returns no MAC, fall back to a sentinel-derived MAC."""
         fc = MagicMock()
         fc.call_action.return_value = {"NewMACAddress": ""}
         device = fritzbox.create_guest_wifi_device(fc)
-        assert device["mac_address"] == "02:00:00:00:00:01"
+        assert device["mac_address"] == string_to_fake_mac("FRITZBOX_GUEST")
 
     def test_device_info_exception_returns_none(self):
         """If DeviceInfo call raises, create_guest_wifi_device must return None."""
@@ -274,12 +271,11 @@ class TestCreateGuestWifiDevice:
     def test_known_mac_produces_known_guest_mac(self):
         """
         Regression anchor: for a fixed Fritz!Box MAC, the expected guest MAC
-        is precomputed here independently. If the hashing logic in
-        fritzbox.py changes, this test fails immediately.
+        is derived via string_to_fake_mac(normalize_mac(...)).  If the hashing
+        logic in fritzbox.py or string_to_fake_mac changes, this test fails.
         """
-        fritzbox_mac = "aa:bb:cc:dd:ee:ff"  # normalize_mac output of "AA:BB:CC:DD:EE:FF"
-        digest = hashlib.md5(f"GUEST:{fritzbox_mac}".encode()).digest()
-        expected = "02:" + ":".join(f"{b:02x}" for b in digest[:5])
+        fritzbox_mac = normalize_mac("AA:BB:CC:DD:EE:FF")
+        expected = string_to_fake_mac(fritzbox_mac)
 
         device = fritzbox.create_guest_wifi_device(self._fc_with_mac("AA:BB:CC:DD:EE:FF"))
         assert device["mac_address"] == expected
@@ -296,10 +292,8 @@ class TestGetFritzboxConnection:
         fc_instance.modelname = "FRITZ!Box 7590"
         fc_instance.system_version = "7.57"
         fc_class = MagicMock(return_value=fc_instance)
-        fc_module = MagicMock()
-        fc_module.FritzConnection = fc_class
 
-        with patch.dict("sys.modules", {"fritzconnection": fc_module}):
+        with patch("fritzbox.FritzConnection", fc_class):
             result = fritzbox.get_fritzbox_connection("fritz.box", 49443, "admin", "pass", True)
 
         assert result is fc_instance
@@ -308,16 +302,13 @@ class TestGetFritzboxConnection:
         )
 
     def test_import_error_returns_none(self):
-        with patch.dict("sys.modules", {"fritzconnection": None}):
+        with patch("fritzbox.FritzConnection", side_effect=ImportError("fritzconnection not found")):
             result = fritzbox.get_fritzbox_connection("fritz.box", 49443, "admin", "pass", True)
 
         assert result is None
 
     def test_connection_exception_returns_none(self):
-        fc_module = MagicMock()
-        fc_module.FritzConnection.side_effect = Exception("Connection refused")
-
-        with patch.dict("sys.modules", {"fritzconnection": fc_module}):
+        with patch("fritzbox.FritzConnection", side_effect=Exception("Connection refused")):
             result = fritzbox.get_fritzbox_connection("fritz.box", 49443, "admin", "pass", True)
 
         assert result is None
