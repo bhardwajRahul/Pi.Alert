@@ -34,3 +34,4 @@ freebox-api
 mcp
 psutil
 pydantic>=2.0,<3.0
+fritzconnection>=1.15.1

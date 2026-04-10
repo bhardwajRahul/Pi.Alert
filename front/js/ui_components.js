@@ -590,6 +590,7 @@ function addOptionFromModalInput() {
  * A MAC is considered fake if it starts with:
  *   - "FA:CE" (new synthetic devices)
  *   - "00:1A" (legacy placeholder devices)
+ *   - "02:" (legacy placeholder devices)
  *
  * The check is case-insensitive.
  *
@@ -600,8 +601,8 @@ function isFakeMac(macAddress) {
   // Normalize to lowercase for consistent comparison
   macAddress = macAddress.toLowerCase();
 
-  // Check if MAC starts with FA:CE or 00:1a
-  return macAddress.startsWith("fa:ce") || macAddress.startsWith("00:1a");
+  // Check if MAC starts with FA:CE or 00:1a or 02:
+  return macAddress.startsWith("fa:ce") || macAddress.startsWith("00:1a") || macAddress.startsWith("02:");
 }
 
 
