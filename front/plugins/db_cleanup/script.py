@@ -142,16 +142,15 @@ def cleanup_database(
     # AppEvents
     histCount = get_setting_value("WORKFLOWS_AppEvents_hist")
     mylog("verbose", [f"[{pluginName}] Trim AppEvents to less than {histCount}"])
-    delete_query = f"""DELETE FROM AppEvents
-                            WHERE "Index" NOT IN (
-                               SELECT "Index"
-                                        FROM (
-                                            SELECT "Index",
-                                                ROW_NUMBER() OVER(PARTITION BY "index" ORDER BY dateTimeCreated DESC) AS row_num
-                                            FROM AppEvents
-                                        ) AS ranked_objects
-                                        WHERE row_num <= {histCount}
-                            );"""
+    delete_query = f"""
+            DELETE FROM AppEvents
+            WHERE "Index" < (
+                SELECT "Index"
+                FROM AppEvents
+                ORDER BY dateTimeCreated DESC
+                LIMIT 1 OFFSET {histCount}
+            );
+        """
     cursor.execute(delete_query)
     mylog("verbose", [f"[{pluginName}] AppEvents deleted rows: {cursor.rowcount}"])
 
