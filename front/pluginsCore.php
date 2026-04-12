@@ -513,6 +513,12 @@ function generateTabs() {
     }
   });
 
+  if (visiblePlugins.length === 0) {
+    $('#tabs-content-location').html(`<p class="text-muted" style="padding: 15px;">${getString('Gen_No_Data')}</p>`);
+    hideSpinner();
+    return;
+  }
+
   // Auto-select tab from ?tab= URL param or cache (scoped to plugin nav only)
   initializeTabsShared({
     cacheKey:      'activePluginsTab',

@@ -344,6 +344,7 @@
     "Gen_LockedDB": "Błąd - Baza danych może być zablokowana - Sprawdź narzędzia deweloperskie F12 -> Konsola lub spróbuj później.",
     "Gen_NetworkMask": "",
     "Gen_New": "",
+    "Gen_No_Data": "",
     "Gen_Offline": "Niedostępne",
     "Gen_Okay": "Ok",
     "Gen_Online": "Dostępne",
