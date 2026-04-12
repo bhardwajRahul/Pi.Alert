@@ -6,6 +6,7 @@ Import from any test subdirectory with:
     import sys, os
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
     from db_test_helpers import make_db, insert_device, minutes_ago, DummyDB, down_event_macs, make_device_dict, sync_insert_devices
+    from db_test_helpers import make_plugin_db, make_plugin_dict, make_plugin_event_row, seed_plugin_object, plugin_history_rows, plugin_objects_rows, PluginFakeDB
 """
 
 import sqlite3
@@ -351,3 +352,201 @@ class DummyDB:
 
     def commitDB(self) -> None:
         self._conn.commit()
+
+
+# ---------------------------------------------------------------------------
+# Plugin tables DDL & helpers  (used by test/server/test_plugin_history_filtering.py)
+# ---------------------------------------------------------------------------
+
+CREATE_PLUGINS_OBJECTS = """
+CREATE TABLE IF NOT EXISTS Plugins_Objects(
+    "index"           INTEGER PRIMARY KEY AUTOINCREMENT,
+    plugin            TEXT NOT NULL,
+    objectPrimaryId   TEXT NOT NULL,
+    objectSecondaryId TEXT NOT NULL,
+    dateTimeCreated   TEXT NOT NULL,
+    dateTimeChanged   TEXT NOT NULL,
+    watchedValue1     TEXT NOT NULL,
+    watchedValue2     TEXT NOT NULL,
+    watchedValue3     TEXT NOT NULL,
+    watchedValue4     TEXT NOT NULL,
+    "status"          TEXT NOT NULL,
+    extra             TEXT NOT NULL,
+    userData          TEXT NOT NULL,
+    foreignKey        TEXT NOT NULL,
+    syncHubNodeName   TEXT,
+    helpVal1          TEXT,
+    helpVal2          TEXT,
+    helpVal3          TEXT,
+    helpVal4          TEXT,
+    objectGuid        TEXT
+);
+"""
+
+CREATE_PLUGINS_EVENTS = """
+CREATE TABLE IF NOT EXISTS Plugins_Events(
+    "index"           INTEGER PRIMARY KEY AUTOINCREMENT,
+    plugin            TEXT NOT NULL,
+    objectPrimaryId   TEXT NOT NULL,
+    objectSecondaryId TEXT NOT NULL,
+    dateTimeCreated   TEXT NOT NULL,
+    dateTimeChanged   TEXT NOT NULL,
+    watchedValue1     TEXT NOT NULL,
+    watchedValue2     TEXT NOT NULL,
+    watchedValue3     TEXT NOT NULL,
+    watchedValue4     TEXT NOT NULL,
+    "status"          TEXT NOT NULL,
+    extra             TEXT NOT NULL,
+    userData          TEXT NOT NULL,
+    foreignKey        TEXT NOT NULL,
+    syncHubNodeName   TEXT,
+    helpVal1          TEXT,
+    helpVal2          TEXT,
+    helpVal3          TEXT,
+    helpVal4          TEXT,
+    objectGuid        TEXT
+);
+"""
+
+CREATE_PLUGINS_HISTORY = """
+CREATE TABLE IF NOT EXISTS Plugins_History(
+    "index"           INTEGER PRIMARY KEY AUTOINCREMENT,
+    plugin            TEXT NOT NULL,
+    objectPrimaryId   TEXT NOT NULL,
+    objectSecondaryId TEXT NOT NULL,
+    dateTimeCreated   TEXT NOT NULL,
+    dateTimeChanged   TEXT NOT NULL,
+    watchedValue1     TEXT NOT NULL,
+    watchedValue2     TEXT NOT NULL,
+    watchedValue3     TEXT NOT NULL,
+    watchedValue4     TEXT NOT NULL,
+    "status"          TEXT NOT NULL,
+    extra             TEXT NOT NULL,
+    userData          TEXT NOT NULL,
+    foreignKey        TEXT NOT NULL,
+    syncHubNodeName   TEXT,
+    helpVal1          TEXT,
+    helpVal2          TEXT,
+    helpVal3          TEXT,
+    helpVal4          TEXT,
+    objectGuid        TEXT
+);
+"""
+
+
+class PluginFakeSQL:
+    """Wraps a sqlite3.Cursor to provide the interface plugin.py expects."""
+    def __init__(self, cursor):
+        self._cursor = cursor
+
+    def execute(self, sql, params=None):
+        if params:
+            return self._cursor.execute(sql, params)
+        return self._cursor.execute(sql)
+
+    def executemany(self, sql, params_list):
+        return self._cursor.executemany(sql, params_list)
+
+
+class PluginFakeDB:
+    """Minimal DB facade expected by process_plugin_events."""
+    def __init__(self, conn):
+        self.sql_connection = conn
+        self.sql = PluginFakeSQL(conn.cursor())
+
+    def get_sql_array(self, query):
+        cur = self.sql_connection.cursor()
+        cur.execute(query)
+        return cur.fetchall()
+
+    def commitDB(self):
+        self.sql_connection.commit()
+
+
+def make_plugin_db() -> tuple:
+    """
+    Return a (PluginFakeDB, connection) backed by an in-memory SQLite
+    database with all three plugin tables created.
+    """
+    conn = sqlite3.connect(":memory:")
+    conn.executescript(
+        CREATE_PLUGINS_OBJECTS + CREATE_PLUGINS_EVENTS + CREATE_PLUGINS_HISTORY
+    )
+    conn.commit()
+    db = PluginFakeDB(conn)
+    return db, conn
+
+
+def make_plugin_dict(prefix: str, watched_columns=None) -> dict:
+    """Return a minimal plugin dict compatible with process_plugin_events."""
+    return {
+        "unique_prefix": prefix,
+        "settings": [
+            {
+                "function": "WATCH",
+                "value": watched_columns or ["watchedValue1"],
+            },
+        ],
+    }
+
+
+def make_plugin_event_row(prefix: str, primary_id: str, secondary_id="sec",
+                          watched1="val1", watched2="", watched3="",
+                          watched4="", changed="2026-01-01 00:00:00",
+                          extra="", user_data="", foreign_key="",
+                          status="not-processed"):
+    """Build a tuple mimicking a raw plugin output row (19 columns + index)."""
+    return (
+        0,              # index (placeholder, not used for events)
+        prefix,         # plugin
+        primary_id,
+        secondary_id,
+        changed,        # dateTimeCreated
+        changed,        # dateTimeChanged
+        watched1,
+        watched2,
+        watched3,
+        watched4,
+        status,
+        extra,
+        user_data,
+        foreign_key,
+        None,           # syncHubNodeName
+        None,           # helpVal1
+        None,           # helpVal2
+        None,           # helpVal3
+        None,           # helpVal4
+    )
+
+
+def seed_plugin_object(cur, prefix: str, primary_id: str,
+                       secondary_id="sec", watched1="val1",
+                       status="watched-not-changed",
+                       changed="2026-01-01 00:00:00"):
+    """Insert a row into Plugins_Objects to simulate a pre-existing object."""
+    cur.execute(
+        """INSERT INTO Plugins_Objects
+           (plugin, objectPrimaryId, objectSecondaryId, dateTimeCreated,
+            dateTimeChanged, watchedValue1, watchedValue2, watchedValue3,
+            watchedValue4, status, extra, userData, foreignKey)
+           VALUES (?, ?, ?, ?, ?, ?, '', '', '', ?, '', '', '')""",
+        (prefix, primary_id, secondary_id, changed, changed, watched1, status),
+    )
+
+
+def plugin_history_rows(conn, prefix: str):
+    """Return all Plugins_History rows for a given plugin prefix."""
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT * FROM Plugins_History WHERE plugin = ?", (prefix,)
+    )
+    return cur.fetchall()
+
+
+def plugin_objects_rows(conn, prefix: str):
+    """Return all Plugins_Objects rows for a given plugin prefix."""
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT * FROM Plugins_Objects WHERE plugin = ?", (prefix,)
+    )
+    return cur.fetchall()
