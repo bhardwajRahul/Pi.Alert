@@ -31,6 +31,12 @@
 <script>
 
 function loadEventsData() {
+  const mac = getMac();
+  if (!mac) {
+    console.warn("loadEventsData: mac not set, skipping");
+    return;
+  }
+
   const hideConnections = $('#chkHideConnectionEvents')[0].checked;
 
   let period = $("#period").val();
@@ -65,7 +71,7 @@ function loadEventsData() {
       query,
       variables: {
         options: {
-          eveMac:   mac,
+          eveMac:   mac,  // local const from getMac() above
           dateFrom: start,
           dateTo:   end,
           limit:    500,
@@ -161,6 +167,11 @@ function initDeviceEventsPage()
   // Only proceed if .plugin-content is visible
   if (!$('#panEvents:visible').length) {
     return; // exit early if nothing is visible
+  }
+
+  // Only proceed if mac is available
+  if (!getMac()) {
+    return; // exit early if mac is not yet set
   }
 
   // init page once

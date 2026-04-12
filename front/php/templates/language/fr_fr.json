@@ -344,6 +344,7 @@
     "Gen_LockedDB": "Erreur - La base de données est peut-être verrouillée - Vérifier avec les outils de dév via F12 -> Console ou essayer plus tard.",
     "Gen_NetworkMask": "Masque réseau",
     "Gen_New": "Nouveau",
+    "Gen_No_Data": "",
     "Gen_Offline": "Hors ligne",
     "Gen_Okay": "OK",
     "Gen_Online": "En ligne",

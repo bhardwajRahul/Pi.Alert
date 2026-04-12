@@ -344,6 +344,7 @@
     "Gen_LockedDB": "ERROR - DB podria estar bloquejada - Fes servir F12 Eines desenvolupament -> Consola o provar-ho més tard.",
     "Gen_NetworkMask": "Màscara de xarxa",
     "Gen_New": "Nou",
+    "Gen_No_Data": "",
     "Gen_Offline": "Fora de línia",
     "Gen_Okay": "Ok",
     "Gen_Online": "En línia",
