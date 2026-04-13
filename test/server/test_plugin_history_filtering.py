@@ -211,3 +211,26 @@ class TestHistoryOnlyRecordsChanges:
 
         objs = plugin_objects_rows(conn, PREFIX)
         assert len(objs) == 1, "Plugins_Objects should still have the object"
+
+    def test_recovery_from_missing_recorded(self, plugin_db, monkeypatch):
+        """An object that was missing-in-last-scan and reappears (even with
+        unchanged watched values) should produce a history row."""
+        db, conn = plugin_db
+        monkeypatch.setattr("plugin.get_setting_value", _no_report_on)
+
+        cur = conn.cursor()
+        seed_plugin_object(cur, PREFIX, "device_A", watched1="val1",
+                           status="missing-in-last-scan")
+        conn.commit()
+
+        plugin = make_plugin_dict(PREFIX)
+        # device_A reappears with the same watched value
+        events = [make_plugin_event_row(PREFIX, "device_A", watched1="val1")]
+
+        process_plugin_events(db, plugin, events)
+
+        rows = plugin_history_rows(conn, PREFIX)
+        assert len(rows) == 1, (
+            "recovery from missing-in-last-scan should generate a history row"
+        )
+        assert rows[0][2] == "device_A"
