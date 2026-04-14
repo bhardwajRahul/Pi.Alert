@@ -240,6 +240,29 @@ def update_devLastConnection_from_CurrentScan(db):
     """)
 
 
+def update_sync_hub_node(db):
+    """
+    Backfill devSyncHubNode with SYNC_node_name for devices where it is empty.
+    Mirrors the fallback already used in create_new_devices.
+    """
+    sql = db.sql
+    node_name = get_setting_value("SYNC_node_name")
+
+    if not node_name:
+        return
+
+    sql.execute(
+        """
+        UPDATE Devices
+        SET devSyncHubNode = ?
+        WHERE COALESCE(devSyncHubNode, '') IN ('', 'null')
+        """,
+        (node_name,),
+    )
+
+    db.commitDB()
+
+
 def update_devices_data_from_scan(db):
     sql = db.sql
 
