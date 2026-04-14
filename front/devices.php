@@ -436,22 +436,28 @@ function initFilters() {
 
                       if (existingFilter) {
                         // Add the unique columnValue to options if not already present
-                        if (!existingFilter.options.includes(entry.columnValue)) {
-                          existingFilter.options.push(entry.columnValue);
+                        if (!existingFilter.options.some(opt => opt.value === entry.columnValue)) {
+                          existingFilter.options.push({
+                            value: entry.columnValue,
+                            label: entry.columnLabel || entry.columnValue
+                          });
                         }
                       } else {
                         // Create a new filter entry
                         transformed.filters.push({
                           column: entry.columnName,
                           headerKey: entry.columnHeaderStringKey,
-                          options: [entry.columnValue]
+                          options: [{
+                            value: entry.columnValue,
+                            label: entry.columnLabel || entry.columnValue
+                          }]
                         });
                       }
                     });
 
-                    // Sort options alphabetically for better readability
+                    // Sort options alphabetically by label for better readability
                     transformed.filters.forEach(filter => {
-                      filter.options.sort();
+                      filter.options.sort((a, b) => a.label.localeCompare(b.label));
                     });
 
                     // Output the result
