@@ -96,6 +96,9 @@ sql_devices_filters = """
                     SELECT DISTINCT 'devVlan' AS columnName, devVlan AS columnValue
                         FROM Devices WHERE devVlan NOT IN ('', 'null') AND devVlan IS NOT NULL
                     UNION
+                    SELECT DISTINCT 'devParentMAC' AS columnName, devParentMAC AS columnValue
+                        FROM Devices WHERE devParentMAC NOT IN ('', 'null') AND devParentMAC IS NOT NULL
+                    UNION
                     SELECT DISTINCT 'devParentRelType' AS columnName, devParentRelType AS columnValue
                         FROM Devices WHERE devParentRelType NOT IN ('', 'null') AND devParentRelType IS NOT NULL
                     UNION

@@ -522,6 +522,7 @@
         "Device_TableHead_SSID",
         "Device_TableHead_SourcePlugin",
         "Device_TableHead_ParentRelType",
+        "Device_TableHead_Parent_MAC",
         "Device_TableHead_Vlan"
       ],
       "localized": ["name", "description"],
