@@ -1,37 +1,19 @@
 """Tests for update_sync_hub_node backfill."""
 
-import sqlite3
+import sys
+import os
 from unittest.mock import patch
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from db_test_helpers import make_db, DummyDB  # noqa: E402
 
 from server.scan import device_handling
 
 
-class DummyDB:
-    """Minimal DB wrapper compatible with device_handling helpers."""
-
-    def __init__(self, conn):
-        self.sql = conn.cursor()
-        self._conn = conn
-
-    def commitDB(self):
-        self._conn.commit()
-
-
 def _make_db(devices):
-    """Create an in-memory DB with a Devices table and seed rows."""
-    conn = sqlite3.connect(":memory:")
-    conn.row_factory = sqlite3.Row
+    """Create an in-memory DB with full schema and seed rows."""
+    conn = make_db()
     cur = conn.cursor()
-
-    cur.execute(
-        """
-        CREATE TABLE Devices (
-            devMac TEXT PRIMARY KEY,
-            devSyncHubNode TEXT
-        )
-        """
-    )
-
     cur.executemany(
         "INSERT INTO Devices (devMac, devSyncHubNode) VALUES (?, ?)",
         devices,
