@@ -255,7 +255,7 @@ def update_sync_hub_node(db):
         f"""
         UPDATE Devices
         SET devSyncHubNode = ?
-        WHERE COALESCE(LOWER(TRIM(devSyncHubNode)), '') IN {NULL_EQUIVALENTS_SQL}
+        WHERE COALESCE(LOWER(TRIM(devSyncHubNode)), '') IN ({NULL_EQUIVALENTS_SQL})
         """,
         (node_name,),
     )
