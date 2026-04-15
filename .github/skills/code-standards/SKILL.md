@@ -74,6 +74,18 @@ Use sanitizers from `server/helper.py` before storing user input. MAC addresses 
 - Everything is already writable
 - If permissions needed, fix `.devcontainer/scripts/setup.sh`
 
+## Test Helpers — No Duplicate Mocks
+
+Reuse shared mocks and factories from `test/db_test_helpers.py`. Never redefine `DummyDB`, `make_db`, or inline DDL in individual test files.
+
+```python
+import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from db_test_helpers import make_db, DummyDB, insert_device, minutes_ago
+```
+
+If a helper you need doesn't exist yet, add it to `db_test_helpers.py` — not locally in the test file.
+
 ## Path Hygiene
 
 - Use environment variables for runtime paths

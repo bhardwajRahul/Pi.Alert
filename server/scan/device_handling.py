@@ -5,7 +5,7 @@ import ipaddress
 from helper import get_setting_value, check_IP_format
 from utils.datetime_utils import timeNowUTC, normalizeTimeStamp
 from logger import mylog, Logger
-from const import vendorsPath, vendorsPathNewest, sql_generateGuid, NULL_EQUIVALENTS
+from const import vendorsPath, vendorsPathNewest, sql_generateGuid, NULL_EQUIVALENTS, NULL_EQUIVALENTS_SQL
 from models.device_instance import DeviceInstance
 from scan.name_resolution import NameResolver
 from scan.device_heuristics import guess_icon, guess_type
@@ -240,6 +240,29 @@ def update_devLastConnection_from_CurrentScan(db):
     """)
 
 
+def update_sync_hub_node(db):
+    """
+    Backfill devSyncHubNode with SYNC_node_name for devices where it is empty.
+    Mirrors the fallback already used in create_new_devices.
+    """
+    sql = db.sql
+    node_name = str(get_setting_value("SYNC_node_name") or "").strip()
+
+    if not node_name:
+        return
+
+    sql.execute(
+        f"""
+        UPDATE Devices
+        SET devSyncHubNode = ?
+        WHERE COALESCE(LOWER(TRIM(devSyncHubNode)), '') IN ({NULL_EQUIVALENTS_SQL})
+        """,
+        (node_name,),
+    )
+
+    db.commitDB()
+
+
 def update_devices_data_from_scan(db):
     sql = db.sql
 
@@ -378,11 +401,11 @@ def update_icons_and_types(db):
 
     if get_setting_value("NEWDEV_replace_preset_icon"):
         query = f"""SELECT * FROM Devices
-                    WHERE devIcon in ('', 'null', '{default_icon}')
+                    WHERE devIcon in ({NULL_EQUIVALENTS_SQL}, '{default_icon}')
                         OR devIcon IS NULL"""
     else:
-        query = """SELECT * FROM Devices
-                    WHERE devIcon in ('', 'null')
+        query = f"""SELECT * FROM Devices
+                    WHERE devIcon in ({NULL_EQUIVALENTS_SQL})
                         OR devIcon IS NULL"""
 
     for device in sql.execute(query):
@@ -406,8 +429,8 @@ def update_icons_and_types(db):
 
     # Guess Type
     recordsToUpdate = []
-    query = """SELECT * FROM Devices
-                    WHERE devType in ('', 'null')
+    query = f"""SELECT * FROM Devices
+                    WHERE devType in ({NULL_EQUIVALENTS_SQL})
                 OR devType IS NULL"""
     default_type = get_setting_value("NEWDEV_devType")
 
@@ -529,7 +552,7 @@ def save_scanned_devices(db):
 def print_scan_stats(db):
     sql = db.sql  # TO-DO
 
-    query = """
+    query = f"""
     SELECT
         (SELECT COUNT(*) FROM CurrentScan) AS devices_detected,
         (SELECT COUNT(*) FROM CurrentScan WHERE NOT EXISTS (SELECT 1 FROM Devices WHERE devMac = scanMac)) AS new_devices,
@@ -544,7 +567,7 @@ def print_scan_stats(db):
                 (SELECT COUNT(*) FROM Devices, CurrentScan
                         WHERE devMac = scanMac
                             AND scanLastIP IS NOT NULL
-                            AND scanLastIP NOT IN ('', 'null', '(unknown)', '(Unknown)')
+                            AND scanLastIP NOT IN ({NULL_EQUIVALENTS_SQL})
                             AND scanLastIP <> COALESCE(devPrimaryIPv4, '')
                             AND scanLastIP <> COALESCE(devPrimaryIPv6, '')
                             AND scanLastIP <> COALESCE(devLastIP, '')

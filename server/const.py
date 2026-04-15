@@ -68,42 +68,46 @@ sql_devices_all =   """
                     """
 
 sql_appevents = """select * from AppEvents order by dateTimeCreated desc"""
-sql_devices_filters = """
-                    SELECT DISTINCT 'devSite' AS columnName, devSite AS columnValue
-                        FROM Devices WHERE devSite NOT IN ('', 'null') AND devSite IS NOT NULL
+sql_devices_filters = f"""
+                    SELECT DISTINCT 'devSite' AS columnName, devSite AS columnValue, devSite AS columnLabel
+                        FROM Devices WHERE devSite NOT IN ({NULL_EQUIVALENTS_SQL}) AND devSite IS NOT NULL
                     UNION
-                    SELECT DISTINCT 'devSourcePlugin' AS columnName, devSourcePlugin AS columnValue
-                        FROM Devices WHERE devSourcePlugin NOT IN ('', 'null') AND devSourcePlugin IS NOT NULL
+                    SELECT DISTINCT 'devSourcePlugin' AS columnName, devSourcePlugin AS columnValue, devSourcePlugin AS columnLabel
+                        FROM Devices WHERE devSourcePlugin NOT IN ({NULL_EQUIVALENTS_SQL}) AND devSourcePlugin IS NOT NULL
                     UNION
-                    SELECT DISTINCT 'devOwner' AS columnName, devOwner AS columnValue
-                        FROM Devices WHERE devOwner NOT IN ('', 'null') AND devOwner IS NOT NULL
+                    SELECT DISTINCT 'devOwner' AS columnName, devOwner AS columnValue, devOwner AS columnLabel
+                        FROM Devices WHERE devOwner NOT IN ({NULL_EQUIVALENTS_SQL}) AND devOwner IS NOT NULL
                     UNION
-                    SELECT DISTINCT 'devType' AS columnName, devType AS columnValue
-                        FROM Devices WHERE devType NOT IN ('', 'null') AND devType IS NOT NULL
+                    SELECT DISTINCT 'devType' AS columnName, devType AS columnValue, devType AS columnLabel
+                        FROM Devices WHERE devType NOT IN ({NULL_EQUIVALENTS_SQL}) AND devType IS NOT NULL
                     UNION
-                    SELECT DISTINCT 'devGroup' AS columnName, devGroup AS columnValue
-                        FROM Devices WHERE devGroup NOT IN ('', 'null') AND devGroup IS NOT NULL
+                    SELECT DISTINCT 'devGroup' AS columnName, devGroup AS columnValue, devGroup AS columnLabel
+                        FROM Devices WHERE devGroup NOT IN ({NULL_EQUIVALENTS_SQL}) AND devGroup IS NOT NULL
                     UNION
-                    SELECT DISTINCT 'devLocation' AS columnName, devLocation AS columnValue
-                        FROM Devices WHERE devLocation NOT IN ('', 'null') AND devLocation IS NOT NULL
+                    SELECT DISTINCT 'devLocation' AS columnName, devLocation AS columnValue, devLocation AS columnLabel
+                        FROM Devices WHERE devLocation NOT IN ({NULL_EQUIVALENTS_SQL}) AND devLocation IS NOT NULL
                     UNION
-                    SELECT DISTINCT 'devVendor' AS columnName, devVendor AS columnValue
-                        FROM Devices WHERE devVendor NOT IN ('', 'null') AND devVendor IS NOT NULL
+                    SELECT DISTINCT 'devVendor' AS columnName, devVendor AS columnValue, devVendor AS columnLabel
+                        FROM Devices WHERE devVendor NOT IN ({NULL_EQUIVALENTS_SQL}) AND devVendor IS NOT NULL
                     UNION
-                    SELECT DISTINCT 'devSyncHubNode' AS columnName, devSyncHubNode AS columnValue
-                        FROM Devices WHERE devSyncHubNode NOT IN ('', 'null') AND devSyncHubNode IS NOT NULL
+                    SELECT DISTINCT 'devSyncHubNode' AS columnName, devSyncHubNode AS columnValue, devSyncHubNode AS columnLabel
+                        FROM Devices WHERE devSyncHubNode NOT IN ({NULL_EQUIVALENTS_SQL}) AND devSyncHubNode IS NOT NULL
                     UNION
-                    SELECT DISTINCT 'devVlan' AS columnName, devVlan AS columnValue
-                        FROM Devices WHERE devVlan NOT IN ('', 'null') AND devVlan IS NOT NULL
+                    SELECT DISTINCT 'devVlan' AS columnName, devVlan AS columnValue, devVlan AS columnLabel
+                        FROM Devices WHERE devVlan NOT IN ({NULL_EQUIVALENTS_SQL}) AND devVlan IS NOT NULL
                     UNION
-                    SELECT DISTINCT 'devParentMAC' AS columnName, devParentMAC AS columnValue
-                        FROM Devices WHERE devParentMAC NOT IN ('', 'null') AND devParentMAC IS NOT NULL
+                    SELECT 'devParentMAC' AS columnName, d.devParentMAC AS columnValue,
+                           COALESCE(p.devName, d.devParentMAC) AS columnLabel
+                        FROM Devices d
+                        LEFT JOIN Devices p ON LOWER(p.devMac) = LOWER(d.devParentMAC)
+                        WHERE d.devParentMAC NOT IN ({NULL_EQUIVALENTS_SQL}) AND d.devParentMAC IS NOT NULL
+                        GROUP BY d.devParentMAC COLLATE NOCASE
                     UNION
-                    SELECT DISTINCT 'devParentRelType' AS columnName, devParentRelType AS columnValue
-                        FROM Devices WHERE devParentRelType NOT IN ('', 'null') AND devParentRelType IS NOT NULL
+                    SELECT DISTINCT 'devParentRelType' AS columnName, devParentRelType AS columnValue, devParentRelType AS columnLabel
+                        FROM Devices WHERE devParentRelType NOT IN ({NULL_EQUIVALENTS_SQL}) AND devParentRelType IS NOT NULL
                     UNION
-                    SELECT DISTINCT 'devSSID' AS columnName, devSSID AS columnValue
-                        FROM Devices WHERE devSSID NOT IN ('', 'null') AND devSSID IS NOT NULL
+                    SELECT DISTINCT 'devSSID' AS columnName, devSSID AS columnValue, devSSID AS columnLabel
+                        FROM Devices WHERE devSSID NOT IN ({NULL_EQUIVALENTS_SQL}) AND devSSID IS NOT NULL
                     ORDER BY columnName;
                     """
 

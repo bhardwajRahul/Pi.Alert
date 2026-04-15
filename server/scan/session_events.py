@@ -4,6 +4,7 @@ from scan.device_handling import (
     save_scanned_devices,
     exclude_ignored_devices,
     update_devices_data_from_scan,
+    update_sync_hub_node,
     update_vendors_from_mac,
     update_icons_and_types,
     update_devPresentLastScan_based_on_force_status,
@@ -61,6 +62,10 @@ def process_scan(db):
     # Update devices info
     mylog("verbose", "[Process Scan] Updating Devices Info")
     update_devices_data_from_scan(db)
+
+    # Backfill devSyncHubNode for devices where it is empty
+    mylog("verbose", "[Process Scan] Updating Sync Hub Node")
+    update_sync_hub_node(db)
 
     # Last Connection Time stamp from CurrentScan
     mylog("verbose", "[Process Scan] Updating devLastConnection from CurrentScan")
