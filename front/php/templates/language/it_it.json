@@ -247,7 +247,7 @@
     "Device_TableHead_Name": "Nome",
     "Device_TableHead_NetworkSite": "Sito di rete",
     "Device_TableHead_Owner": "Proprietario",
-    "Device_TableHead_ParentRelType": "Tipo di relazione",
+    "Device_TableHead_ParentRelType": "Relazione",
     "Device_TableHead_Parent_MAC": "Nodo principale",
     "Device_TableHead_Port": "Porta",
     "Device_TableHead_PresentLastScan": "Presenza",
