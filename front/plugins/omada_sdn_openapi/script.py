@@ -19,6 +19,7 @@ __author__ = "xfilo"
 __version__ = 0.1       # Initial version
 __version__ = 0.2       # Rephrased error messages, improved logging and code logic
 __version__ = 0.3       # Refactored data collection into a class, improved code clarity with comments
+__version__ = 0.4       # Fix for https://github.com/netalertx/NetAlertX/issues/1595 - Omada Controller versions >= 6.2.0.0 removed the v1 clients endpoint
 
 import os
 import sys
@@ -220,6 +221,39 @@ class OmadaHelper:
             msg = f"Failed normalizing {input_type}(s) from site '{site_name}' - error: {str(ex)}"
             OmadaHelper.verbose(msg)
             return OmadaHelper.response("error", msg)
+        
+    @staticmethod
+    def version_check(version, base: str, op: str = ">=") -> bool:
+        def to_tuple(v):
+            if isinstance(v, int):
+                return (v,)
+
+            if isinstance(v, str):
+                return tuple(int(x) for x in v.split(".") if x != "")
+
+            raise TypeError("version/base must be int or str")
+
+        v = to_tuple(version)
+        b = to_tuple(base)
+
+        max_len = max(len(v), len(b))
+        v += (0,) * (max_len - len(v))
+        b += (0,) * (max_len - len(b))
+
+        if op == "==":
+            return v == b
+        if op == "!=":
+            return v != b
+        if op == ">":
+            return v > b
+        if op == ">=":
+            return v >= b
+        if op == "<":
+            return v < b
+        if op == "<=":
+            return v <= b
+
+        raise ValueError("Unsupported operator")
 
 
 class OmadaAPI:
@@ -259,6 +293,7 @@ class OmadaAPI:
         self.active_sites_dict = {}
         self.access_token = None
         self.refresh_token = None
+        self.controller_version = 0
 
         OmadaHelper.verbose("OmadaAPI initialized")
 
@@ -328,11 +363,36 @@ class OmadaAPI:
         OmadaHelper.debug(f"Authentication response: {response}")
         return OmadaHelper.response("error", f"Authentication failed - error: {response.get('response_message', 'Not provided')}")
 
+    def get_controller_status(self) -> Dict[str, Any]:
+        """Make an endpoint request to get all online clients on a site."""
+        OmadaHelper.verbose(f"Retrieving controller status for CID: {getattr(self, 'omada_id')}")
+        endpoint = f"/openapi/v1/{getattr(self, 'omada_id')}/system/setting/controller-status"
+        response = self._make_request("GET", endpoint)
+
+        if response.get("response_type") == "success":
+            response_result = response.get("response_result")
+            self.controller_version = response_result.get("result").get("controllerVersion")
+            OmadaHelper.debug(f"Controller status: {response}")
+            return OmadaHelper.response("success", "Successfully retrieved controller status")
+
+        OmadaHelper.debug(f"Controller status: {response}")
+        return OmadaHelper.response("error", "Failed to retrieve controller status")
+
     def get_clients(self, site_id: str) -> Dict[str, Any]:
         """Make an endpoint request to get all online clients on a site."""
         OmadaHelper.verbose(f"Retrieving clients for site: {site_id}")
-        endpoint = f"/openapi/v1/{getattr(self, 'omada_id')}/sites/{site_id}/clients?page=1&pageSize={getattr(self, 'page_size')}"
-        return self._make_request("GET", endpoint)
+
+        if OmadaHelper.version_check(self.controller_version, "6.2.0.0", ">="):
+                endpoint = f"/openapi/v2/{getattr(self, 'omada_id')}/sites/{site_id}/clients"
+                payload = {
+                    "page": 1,
+                    "pageSize": getattr(self, 'page_size'),
+                    "scope": 1
+                }
+                return self._make_request("POST", endpoint, json=payload)
+        else:
+            endpoint = f"/openapi/v1/{getattr(self, 'omada_id')}/sites/{site_id}/clients?page=1&pageSize={getattr(self, 'page_size')}"
+            return self._make_request("GET", endpoint)
 
     def get_devices(self, site_id: str) -> Dict[str, Any]:
         """Make an endpoint request to get all online devices on a site."""
@@ -454,6 +514,10 @@ class OmadaData:
             OmadaHelper.minimal("Authentication failed, aborting data collection")
             OmadaHelper.debug(f"{auth_result['response_message']}")
             return plugin_objects
+        
+        # Controller status
+        omada_api.get_controller_status()
+        OmadaHelper.verbose(f"Controller version: {omada_api.controller_version}")
 
         # Populate sites
         sites_result = omada_api.populate_sites()
