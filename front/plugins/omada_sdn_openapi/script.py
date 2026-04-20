@@ -27,9 +27,11 @@ import urllib3
 import requests
 import time
 import pytz
+import operator
 
 from datetime import datetime
 from typing import Literal, Any, Dict
+from packaging.version import Version, InvalidVersion
 
 # Define the installation path and extend the system path for plugin imports
 INSTALL_PATH = os.getenv('NETALERTX_APP', '/app')
@@ -224,36 +226,37 @@ class OmadaHelper:
         
     @staticmethod
     def version_check(version, base: str, op: str = ">=") -> bool:
-        def to_tuple(v):
+        """
+        Compare versions using PEP 440 semantics.
+        Supports int and str inputs.
+        """
+        ops = {
+            "==": operator.eq,
+            "!=": operator.ne,
+            ">": operator.gt,
+            ">=": operator.ge,
+            "<": operator.lt,
+            "<=": operator.le,
+        }
+
+        if op not in ops:
+            raise ValueError("Unsupported operator")
+
+        def to_version(v):
             if isinstance(v, int):
-                return (v,)
-
+                return Version(str(v))
             if isinstance(v, str):
-                return tuple(int(x) for x in v.split(".") if x != "")
-
+                try:
+                    return Version(v)
+                except InvalidVersion:
+                    # fallback: treat invalid versions as 0
+                    return Version("0")
             raise TypeError("version/base must be int or str")
 
-        v = to_tuple(version)
-        b = to_tuple(base)
+        v = to_version(version)
+        b = to_version(base)
 
-        max_len = max(len(v), len(b))
-        v += (0,) * (max_len - len(v))
-        b += (0,) * (max_len - len(b))
-
-        if op == "==":
-            return v == b
-        if op == "!=":
-            return v != b
-        if op == ">":
-            return v > b
-        if op == ">=":
-            return v >= b
-        if op == "<":
-            return v < b
-        if op == "<=":
-            return v <= b
-
-        raise ValueError("Unsupported operator")
+        return ops[op](v, b)
 
 
 class OmadaAPI:
