@@ -66,6 +66,8 @@
     "CustProps_cant_remove": "Impossibile rimuovere, è necessaria almeno una proprietà.",
     "DAYS_TO_KEEP_EVENTS_description": "Questa è un'impostazione di manutenzione. Specifica il numero di giorni delle voci degli eventi che verranno conservati. Tutti gli eventi più vecchi verranno eliminati periodicamente. Si applica anche alla cronologia degli eventi del plugin (Plugin Events History).",
     "DAYS_TO_KEEP_EVENTS_name": "Elimina eventi più vecchi di",
+    "DEEP_SLEEP_description": "",
+    "DEEP_SLEEP_name": "",
     "DISCOVER_PLUGINS_description": "Disattiva questa opzione per velocizzare l'inizializzazione e il salvataggio delle impostazioni. Quando è disattivata, i plugin non vengono scoperti e non puoi aggiungere nuovi plugin all'impostazione <code>LOADED_PLUGINS</code>.",
     "DISCOVER_PLUGINS_name": "Scopri i plugin",
     "DevDetail_Children_Title": "Relazioni tra figli",

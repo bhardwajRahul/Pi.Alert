@@ -66,6 +66,8 @@
     "CustProps_cant_remove": "Suppression impossible, au moins une donnée est requise.",
     "DAYS_TO_KEEP_EVENTS_description": "Il s'agit d'un paramètre de maintenance. Il indique le nombre de jours pendant lesquels les entrées d'événements seront conservées. Tous les événements plus anciens seront supprimés périodiquement. S'applique également à l'historique des événements du plugin.",
     "DAYS_TO_KEEP_EVENTS_name": "Supprimer les événements plus anciens que",
+    "DEEP_SLEEP_description": "",
+    "DEEP_SLEEP_name": "",
     "DISCOVER_PLUGINS_description": "Désactivez cette option pour accélérer le démarrage et l'enregistrement de paramètres. Quand elle est désactivée, les plugins ne sont pas découverts, et vous ne pouvez près ajouter de nouveaux plugins au paramètre <code>LOADED_PLUGINS</code>.",
     "DISCOVER_PLUGINS_name": "Découvrir des plugins",
     "DevDetail_Children_Title": "Relations avec les éléments inférieurs",

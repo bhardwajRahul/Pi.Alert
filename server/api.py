@@ -251,3 +251,31 @@ def stop_periodic_write():
             periodic_write_thread.join()
             periodic_write_running = False
             mylog("trace", ["[API] periodic_write thread stopped."])
+
+
+def check_activity():
+    """
+    Check for active TCP connections on the host.
+
+    Reads `/proc/net/tcp` and looks for entries in the ESTABLISHED state
+    (state code `01`). If any are found, the system is considered "active",
+    typically indicating interaction via the web UI or API.
+
+    Returns:
+        bool: True if at least one established TCP connection exists,
+              False otherwise or if the check fails.
+
+    Notes:
+        - Linux-only: relies on `/proc/net/tcp`.
+        - Lightweight heuristic; does not distinguish connection origin
+          (e.g., UI vs other services).
+        - Fail-safe: returns False on any read/parse error.
+    """
+    try:
+        with open("/proc/net/tcp", "r") as f:
+            for line in f:
+                if " 01 " in line:  # ESTABLISHED
+                    return True
+    except:
+        pass
+    return False
