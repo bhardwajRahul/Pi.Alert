@@ -9,7 +9,7 @@
   "display_name": [
     {
       "language_code": "en_us",
-      "string": "UI settings"
+      "string": "UI Settings"
     }
   ],
   "description": [
@@ -456,7 +456,7 @@
       "description": [
         {
           "language_code": "en_us",
-          "string": "Columns and their order that are shown on the Devices page. Drag and drop the order of columns, click <code>x</code> to remove columns. You can also click into the field to selectivelly add fields. The <code>Name</code> and <code>Status</code> fields are required."
+          "string": "Columns and their order that are shown on the Devices page. Drag and drop to order the columns, click <code>x</code> to remove columns. You can also click into the field to selectivelly add fields. The <code>Name</code> and <code>Status</code> fields are required."
         }
       ]
     },
@@ -535,7 +535,7 @@
       "description": [
         {
           "language_code": "en_us",
-          "string": "Which column filters should be displayed in the main Devices screen. Remove all to hide the Filters section."
+          "string": "Column filters that should be displayed in the main Devices screen. Drag and drop to change the order. Remove all to hide the Filters section."
         }
       ]
     },

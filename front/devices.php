@@ -430,29 +430,35 @@ function initFilters() {
                       filters: []
                     };
 
-                    // Group data by columnName
-                    resultJSON.forEach(entry => {
-                      const existingFilter = transformed.filters.find(filter => filter.column === entry.columnName);
+                    // Build filters in the exact order of columnFilters
+                    columnFilters.forEach(([columnName, headerKey]) => {
+                      // Get matching entries for this column
+                      const entries = resultJSON.filter(e => e.columnName === columnName);
 
-                      if (existingFilter) {
-                        // Add the unique columnValue to options if not already present
-                        if (!existingFilter.options.some(opt => opt.value === entry.columnValue)) {
-                          existingFilter.options.push({
-                            value: entry.columnValue,
-                            label: entry.columnLabel || entry.columnValue
-                          });
+                      if (entries.length === 0) return;
+
+                      // Build options (unique)
+                      const optionsMap = new Map();
+
+                      entries.forEach(entry => {
+                        const value = entry.columnValue;
+                        const label = entry.columnLabel || value;
+
+                        if (!optionsMap.has(value)) {
+                          optionsMap.set(value, { value, label });
                         }
-                      } else {
-                        // Create a new filter entry
-                        transformed.filters.push({
-                          column: entry.columnName,
-                          headerKey: entry.columnHeaderStringKey,
-                          options: [{
-                            value: entry.columnValue,
-                            label: entry.columnLabel || entry.columnValue
-                          }]
-                        });
-                      }
+                      });
+
+                      const options = Array.from(optionsMap.values());
+
+                      // Sort options alphabetically
+                      options.sort((a, b) => a.label.localeCompare(b.label));
+
+                      transformed.filters.push({
+                        column: columnName,
+                        headerKey: headerKey,
+                        options: options
+                      });
                     });
 
                     // Sort options alphabetically by label for better readability

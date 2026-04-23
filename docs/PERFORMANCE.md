@@ -87,6 +87,7 @@ Frequent scans increase resource usage, network traffic, and database read/write
 * **Increase scan intervals** (`<PLUGIN>_RUN_SCHD`) on busy networks or low-end hardware.
 * **Increase timeouts** (`<PLUGIN>_RUN_TIMEOUT`) to avoid plugin failures.
 * **Reduce subnet size** – e.g., use `/24` instead of `/16` to reduce scan load.
+* **Enable the deep sleep setting** (`DEEP_SLEEP`) – Lowers CPU usage by extending idle wait times between processing cycles. When enabled, scans may be delayed by up to 1 minute and the UI might become less responsive.
 
 Some plugins also include options to limit which devices are scanned. If certain plugins consistently run long, consider narrowing their scope.
 
