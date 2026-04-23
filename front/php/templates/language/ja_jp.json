@@ -66,6 +66,8 @@
     "CustProps_cant_remove": "削除できません。少なくとも1つのプロパティが必要です。",
     "DAYS_TO_KEEP_EVENTS_description": "これはメンテナンス設定です。イベントエントリを保持する日数を指定します。それより古いイベントは定期的に削除されます。プラグインイベント履歴にも適用されます。",
     "DAYS_TO_KEEP_EVENTS_name": "古いイベントの削除",
+    "DEEP_SLEEP_description": "",
+    "DEEP_SLEEP_name": "",
     "DISCOVER_PLUGINS_description": "このオプションを無効にすると、初期化と設定の保存が高速化されます。無効にした場合、プラグインは検出されず、<code>LOADED_PLUGINS</code> 設定に新しいプラグインを追加することはできません。",
     "DISCOVER_PLUGINS_name": "プラグインの検出",
     "DevDetail_Children_Title": "親子関係",

@@ -66,6 +66,8 @@
     "CustProps_cant_remove": "无法移除，至少需要保留一个属性。",
     "DAYS_TO_KEEP_EVENTS_description": "这是维护设置。它指定将保留的事件条目的天数。所有较旧的事件将被定期删除。也适用于插件事件历史记录。",
     "DAYS_TO_KEEP_EVENTS_name": "删除早于",
+    "DEEP_SLEEP_description": "",
+    "DEEP_SLEEP_name": "",
     "DISCOVER_PLUGINS_description": "禁用此选项可加快初始化和设置保存的速度。当禁用时，插件不会被发现，并且您无法将新插件添加到 <code>LOADED_PLUGINS</code>设置中。",
     "DISCOVER_PLUGINS_name": "发现插件",
     "DevDetail_Children_Title": "子代关系",

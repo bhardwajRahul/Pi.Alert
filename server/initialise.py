@@ -246,6 +246,15 @@ def importConfigs(pm, db, all_plugins):
         "[]",
         "General",
     )
+    conf.DEEP_SLEEP = ccd(
+        "DEEP_SLEEP",
+        False,
+        c_d,
+        "Deep Sleep",
+        """{"dataType": "boolean","elements": [{"elementType": "input","elementOptions": [{ "type": "checkbox" }],"transformers": []}]}""",
+        "[]",
+        "General",
+    )
     conf.DISCOVER_PLUGINS = ccd(
         "DISCOVER_PLUGINS",
         True,

@@ -66,6 +66,8 @@
     "CustProps_cant_remove": "No es pot eliminar, es necessita una propietat mínim.",
     "DAYS_TO_KEEP_EVENTS_description": "Això és una configuració de manteniment. Especifica el nombre de dies que es conservaran els esdeveniments. Els esdeveniments antics s'esborraran periòdicament. També aplica als esdeveniments dels Connectors (Plugins).",
     "DAYS_TO_KEEP_EVENTS_name": "Esborrar esdeveniments més vells de",
+    "DEEP_SLEEP_description": "",
+    "DEEP_SLEEP_name": "",
     "DISCOVER_PLUGINS_description": "Desactiva aquesta opció per accelerar la inicialització i l'estalvi de configuració. Quan està desactivat, els connectors no es descobreixen, i no podeu afegir nous connectors a la configuració <code>LOADED_PLUGINS</code>.",
     "DISCOVER_PLUGINS_name": "Descobreix els plugins",
     "DevDetail_Children_Title": "Relacions filles",
