@@ -30,6 +30,7 @@ logRoot = LOG_PATH_STR
 
 dbFileName = "app.db"
 confFileName = "app.conf"
+defaultWebPort = 20211
 
 confPath = CONFIG_PATH_WITH_TRAILING_SEP + confFileName
 dbPath = DB_PATH_WITH_TRAILING_SEP + dbFileName

@@ -3,6 +3,7 @@ import json
 import time
 import threading
 import datetime
+import os
 
 # Register NetAlertX modules
 import conf
@@ -21,6 +22,7 @@ from const import (
     sql_notifications_all,
     sql_online_history,
     sql_devices_filters,
+    defaultWebPort,
 )
 from db.db_helper import get_sql_devices_tiles
 from logger import mylog
@@ -33,6 +35,8 @@ from models.user_events_queue_instance import UserEventsQueueInstance
 from api_server.api_server_start import start_server
 
 apiEndpoints = []
+
+hex_gui_port = None
 
 # Lock for thread safety
 api_lock = threading.Lock()
@@ -253,6 +257,21 @@ def stop_periodic_write():
             mylog("trace", ["[API] periodic_write thread stopped."])
 
 
+def update_GUI_port():
+    """
+        Grabs the PORT for the webinterface and converts it to HEX to use for activity checks
+    """
+    global hex_gui_port
+
+    gui_port_string = os.environ.get('PORT', str(defaultWebPort))
+    try:
+        port = int(gui_port_string)
+    except (TypeError, ValueError):
+        mylog("none", [f"[API] Invalid PORT value '{gui_port_string}', falling back to {defaultWebPort}"])
+        port = defaultWebPort
+    hex_gui_port = ':' + format(port, '04X')
+
+
 def check_activity():
     """
     Check for active TCP connections on the host.
@@ -271,10 +290,11 @@ def check_activity():
           (e.g., UI vs other services).
         - Fail-safe: returns False on any read/parse error.
     """
+
     try:
         with open("/proc/net/tcp", "r") as f:
             for line in f:
-                if " 01 " in line:  # ESTABLISHED
+                if hex_gui_port in line and " 01 " in line:
                     return True
     except:
         pass
