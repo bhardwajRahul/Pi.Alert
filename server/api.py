@@ -262,8 +262,14 @@ def update_GUI_port():
         Grabs the PORT for the webinterface and converts it to HEX to use for activity checks
     """
     global hex_gui_port
-    gui_port_string = port = os.environ.get('PORT', defaultWebPort)
-    hex_gui_port = ':'+format(int(gui_port_string), '04X')
+
+    gui_port_string = os.environ.get('PORT', str(defaultWebPort))
+    try:
+        port = int(gui_port_string)
+    except (TypeError, ValueError):
+        mylog("none", [f"[API] Invalid PORT value '{gui_port_string}', falling back to {defaultWebPort}"])
+        port = defaultWebPort
+    hex_gui_port = ':' + format(port, '04X')
 
 
 def check_activity():
